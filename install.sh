@@ -12,5 +12,20 @@ main() {
   echo "To start, run: sudo systemctl start minikube.service"
 }
 
+install_linkerd() {
+  curl --proto '=https' --tlsv1.2 -sSfL https://run.linkerd.io/install | sh
+  kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.2.1/standard-install.yaml
+
+  linkerd install --crds | kubectl apply -f -
+  linkerd install --set proxyInit.runAsRoot=true | kubectl apply -f -
+  linkerd viz install | kubectl apply -f -
+  linkerd viz check
+}
+
+access_viz_dashboard() {
+  kubectl get svc -n linkerd-viz web                                                                                                                                  19:48
+  kubectl port-forward -n linkerd-viz svc/web 8084:8084                                                                                                               19:48
+}
+
 main "$@"
 
